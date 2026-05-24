@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>手势识别 - 剪刀石头布</title>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+            padding: 30px;
+            width: 100%;
+            max-width: 700px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2d3748;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .battle-container {
+            width: 100%;
+            max-width: 480px;
+            aspect-ratio: 1;
+            margin: 0 auto 20px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            background: #000;
+        }
+
+        .top-row {
+            display: flex;
+            height: 50%;
+        }
+
+        .gesture-area {
+            flex: 1;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .ai-area {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-right: 2px solid #667eea;
+        }
+
+        .user-area {
+            background: #000;
+        }
+
+        .player-label {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .camera-toggle {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            margin-left: 4px;
+        }
+
+        .camera-toggle input {
+            display: none;
+        }
+
+        .camera-icon {
+            font-size: 0.85rem;
+            opacity: 0.7;
+            transition: all 0.3s;
+            filter: grayscale(30%);
+        }
+
+        .camera-toggle input:checked + .camera-icon {
+            opacity: 0.3;
+            filter: grayscale(100%);
+        }
+
+        .camera-toggle:hover .camera-icon {
+            opacity: 1;
+            filter: grayscale(0%);
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: contain;
+            background: #000;
+            transform: scaleX(-1);
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transform: scaleX(-1);
+        }
+
+        .gesture-display {
+            font-size: 4rem;
+        }
+
+        .gesture-display.animate {
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-10deg); }
+            75% { transform: rotate(10deg); }
+        }
+
+        .vs-divider {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-weight: bold;
+            z-index: 20;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .judge-area {
+            background: linear-gradient(135deg, #1a2a6c 0%, #2d3748 100%);
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-top: 3px solid #667eea;
+        }
+
+        .result-display {
+            width: 100%;
+            padding: 20px;
+            text-align: center;
+            color: white;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .result-display.show {
+            opacity: 1;
+        }
+
+        .result-text {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .gestures-show {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 20px;
+        }
+
+        .gesture-item {
+            text-align: center;
+        }
+
+        .gesture-emoji {
+            font-size: 4rem;
+            display: block;
+        }
+
+        .gesture-label {
+            font-size: 1rem;
+            margin-top: 10px;
+            opacity: 0.8;
+        }
+
+        .judge-title {
+            font-size: 1.5rem;
+            color: white;
+            opacity: 0.7;
+        }
+
+        .status-message {
+            text-align: center;
+            color: #667eea;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            min-height: 30px;
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-around;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            display: block;
+        }
+
+        .score-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .settings-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .settings-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .settings-panel {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        .settings-panel.show {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; max-height: 0; }
+            to { opacity: 1; max-height: 400px; }
+        }
+
+        .settings-title {
+            color: #2d3748;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .slider-container {
+            margin-bottom: 15px;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #e2e8f0;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .settings-desc {
+            color: #718096;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 15px;
+        }
+
+        .toggle-label {
+            color: #2d3748;
+            font-weight: 500;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #e2e8f0;
+            transition: .4s;
+            border-radius: 26px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #667eea;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        .reset-btn {
+            background: #ed8936;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .reset-btn:hover {
+            background: #dd6b20;
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100px;
+            color: #667eea;
+            font-size: 1rem;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .score-value {
+                font-size: 2rem;
+            }
+
+            .result-text {
+                font-size: 1.8rem;
+            }
+
+            .gesture-emoji {
+                font-size: 3rem;
+            }
+
+            .top-row {
+                height: 160px;
+            }
+
+            .judge-area {
+                min-height: 160px;
+            }
+        }
+
+        .footer-info {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e2e8f0;
+            text-align: center;
+        }
+
+        .changelog-section {
+            margin-bottom: 20px;
+        }
+
+        .changelog-toggle {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 12px;
+            cursor: pointer;
+            padding: 10px;
+            background: #e2e8f0;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+
+        .changelog-toggle:hover {
+            background: #cbd5e0;
+        }
+
+        .changelog-content {
+            text-align: left;
+            max-height: 150px;
+            overflow-y: auto;
+            background: #f7fafc;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .changelog-item {
+            font-size: 0.85rem;
+            color: #4a5568;
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .changelog-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .changelog-item strong {
+            color: #667eea;
+        }
+
+        .version-info {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .copyright {
+            font-size: 0.85rem;
+            color: #718096;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✊✌️🖐️ 手势对战</h1>
+        
+        <div class="status-message" id="statusMessage">正在初始化...</div>
+
+        <div class="battle-container">
+            <div class="top-row">
+                <div class="gesture-area ai-area">
+                    <div class="player-label">🤖 AI</div>
+                    <div id="aiGestureDisplay" class="gesture-display">❓</div>
+                </div>
+                <div class="vs-divider">⚔️ VS</div>
+                <div class="gesture-area user-area">
+                    <div class="player-label">
+                        <span>👤 你</span>
+                        <label class="camera-toggle">
+                            <input type="checkbox" id="hideCameraToggle" onchange="toggleCamera()">
+                            <span class="camera-icon">📷</span>
+                        </label>
+                    </div>
+                    <div class="video-container">
+                        <video id="video" autoplay playsinline></video>
+                        <canvas id="canvas"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="judge-area">
+                <div id="resultDisplay" class="result-display">
+                    <div class="gestures-show">
+                        <div class="gesture-item">
+                            <span class="gesture-emoji" id="aiGesture">✊</span>
+                            <span class="gesture-label">AI</span>
+                        </div>
+                        <div class="gesture-item">
+                            <span class="gesture-emoji">⚔️</span>
+                            <span class="gesture-label">VS</span>
+                        </div>
+                        <div class="gesture-item">
+                            <span class="gesture-emoji" id="userGesture">✊</span>
+                            <span class="gesture-label">你</span>
+                        </div>
+                    </div>
+                    <div id="resultText" class="result-text">平局！</div>
+                </div>
+                <div class="judge-title" id="judgeTitle">👨‍⚖️ 裁判等待中...</div>
+            </div>
+        </div>
+
+        <div class="score-board">
+            <div class="score-item">
+                <span class="score-value" id="userScore">0</span>
+                <span class="score-label">你赢</span>
+            </div>
+            <div class="score-item">
+                <span class="score-value" id="tieScore">0</span>
+                <span class="score-label">平局</span>
+            </div>
+            <div class="score-item">
+                <span class="score-value" id="aiScore">0</span>
+                <span class="score-label">AI赢</span>
+            </div>
+        </div>
+
+        <button class="settings-btn" onclick="toggleSettings()">⚙️ 设置</button>
+
+        <div class="settings-panel" id="settingsPanel">
+            <div class="settings-title">AI 胜率设置</div>
+            <div class="slider-container">
+                <div class="slider-label">
+                    <span>AI 胜率</span>
+                    <span id="winRateValue">50%</span>
+                </div>
+                <input type="range" id="winRateSlider" min="0" max="100" value="50">
+            </div>
+            <div class="settings-desc">
+                0% = 你每局必赢<br>
+                100% = 你每局必输<br>
+                中间值 = 按概率随机对战
+            </div>
+            
+            <button class="reset-btn" onclick="resetScore()">🔄 重置分数</button>
+        </div>
+
+        <div class="footer-info">
+            <div class="changelog-section">
+                <div class="changelog-toggle" onclick="toggleChangelog()">📋 更新日志 <span id="changelogArrow">▼</span></div>
+                <div class="changelog-content" id="changelogContent" style="display: none;">
+                    <div class="changelog-item"><strong>2026-05-23 13:01</strong> - V0.1.0 优化摄像机图标样式，更小巧精致</div>
+                    <div class="changelog-item"><strong>2026-05-24 22:40</strong> - V0.0.9 隐藏摄像头按钮移到视频区域，优化UI设计</div>
+                    <div class="changelog-item"><strong>2026-05-24 22:30</strong> - V0.0.8 大幅提升AI反应速度，加快游戏节奏</div>
+                </div>
+            </div>
+            <div class="version-info">V0.1.0</div>
+            <div class="copyright">© 2026 Li Chengyan. All Rights Reserved.</div>
+        </div>
+    </div>
+
+    <script>
+        // ============== 全局变量 ==============
+        let hands, camera;
+        let userScore = 0, aiScore = 0, tieScore = 0;
+        let currentGesture = null;
+        let lastGesture = null;
+        let gestureStability = 0;
+        let isPlaying = false;
+        let currentAIGesture = null;
+        let cameraHidden = false;
+
+        const GESTURE_EMOJI = {
+            rock: '✊',
+            scissors: '✌️',
+            paper: '🖐️'
+        };
+
+        // ============== 手势识别模块 ==============
+        function detectGesture(landmarks) {
+            const thumbTip = landmarks[4];
+            const indexTip = landmarks[8];
+            const indexMcp = landmarks[5];
+            const middleTip = landmarks[12];
+            const middleMcp = landmarks[9];
+            const ringTip = landmarks[16];
+            const ringMcp = landmarks[13];
+            const pinkyTip = landmarks[20];
+            const pinkyMcp = landmarks[17];
+
+            const indexExtended = indexTip.y < indexMcp.y;
+            const middleExtended = middleTip.y < middleMcp.y;
+            const ringExtended = ringTip.y < ringMcp.y;
+            const pinkyExtended = pinkyTip.y < pinkyMcp.y;
+
+            const thumbExtended = thumbTip.x < thumbTip.y;
+
+            if (!indexExtended && !middleExtended && !ringExtended && !pinkyExtended) {
+                return 'rock';
+            }
+
+            if (indexExtended && middleExtended && !ringExtended && !pinkyExtended) {
+                return 'scissors';
+            }
+
+            if (indexExtended && middleExtended && ringExtended && pinkyExtended) {
+                return 'paper';
+            }
+
+            return null;
+        }
+
+        // ============== 胜率逻辑模块 ==============
+        function generateAIGesture(userGesture) {
+            const winRate = parseInt(document.getElementById('winRateSlider').value);
+            const gestures = ['rock', 'scissors', 'paper'];
+            
+            if (winRate === 0) {
+                if (userGesture === 'rock') return 'scissors';
+                if (userGesture === 'scissors') return 'paper';
+                return 'rock';
+            }
+            
+            if (winRate === 100) {
+                if (userGesture === 'rock') return 'paper';
+                if (userGesture === 'scissors') return 'rock';
+                return 'scissors';
+            }
+            
+            const userWinChance = (100 - winRate) / 100;
+            const tieChance = 0.1;
+            const aiWinChance = 1 - userWinChance - tieChance;
+            
+            const random = Math.random();
+            
+            if (random < userWinChance) {
+                if (userGesture === 'rock') return 'scissors';
+                if (userGesture === 'scissors') return 'paper';
+                return 'rock';
+            } else if (random < userWinChance + tieChance) {
+                return userGesture;
+            } else {
+                if (userGesture === 'rock') return 'paper';
+                if (userGesture === 'scissors') return 'rock';
+                return 'scissors';
+            }
+        }
+
+        // ============== 胜负判定模块 ==============
+        function determineWinner(user, ai) {
+            if (user === ai) return 'tie';
+            if (
+                (user === 'rock' && ai === 'scissors') ||
+                (user === 'scissors' && ai === 'paper') ||
+                (user === 'paper' && ai === 'rock')
+            ) {
+                return 'user';
+            }
+            return 'ai';
+        }
+
+        // ============== 游戏逻辑模块 ==============
+        function playGame(userGesture) {
+            if (isPlaying) return;
+            isPlaying = true;
+            
+            const aiGesture = generateAIGesture(userGesture);
+            currentAIGesture = aiGesture;
+            
+            const aiDisplay = document.getElementById('aiGestureDisplay');
+            aiDisplay.textContent = GESTURE_EMOJI[aiGesture];
+            aiDisplay.classList.add('animate');
+            setTimeout(() => aiDisplay.classList.remove('animate'), 200);
+            
+            const result = determineWinner(userGesture, aiGesture);
+            updateScore(result);
+            showResult(userGesture, aiGesture, result);
+            
+            setTimeout(() => {
+                isPlaying = false;
+                resetGestureState();
+                resetAIDisplay();
+            }, 1200);
+        }
+
+        function resetGestureState() {
+            lastGesture = null;
+            gestureStability = 0;
+        }
+
+        function resetAIDisplay() {
+            const aiDisplay = document.getElementById('aiGestureDisplay');
+            aiDisplay.textContent = '❓';
+        }
+
+        // ============== UI交互模块 ==============
+        function showResult(userGesture, aiGesture, result) {
+            const resultDisplay = document.getElementById('resultDisplay');
+            const resultText = document.getElementById('resultText');
+            const userGestureEl = document.getElementById('userGesture');
+            const aiGestureEl = document.getElementById('aiGesture');
+            const judgeTitle = document.getElementById('judgeTitle');
+            
+            userGestureEl.textContent = GESTURE_EMOJI[userGesture];
+            aiGestureEl.textContent = GESTURE_EMOJI[aiGesture];
+            
+            if (result === 'user') {
+                resultText.textContent = '🎉 你赢了！';
+            } else if (result === 'ai') {
+                resultText.textContent = '😢 你输了！';
+            } else {
+                resultText.textContent = '🤝 平局！';
+            }
+            
+            judgeTitle.style.display = 'none';
+            resultDisplay.classList.add('show');
+            
+            setTimeout(() => {
+                resultDisplay.classList.remove('show');
+                judgeTitle.style.display = 'block';
+                judgeTitle.textContent = '👨‍⚖️ 裁判等待中...';
+            }, 1000);
+        }
+
+        function updateScore(result) {
+            if (result === 'user') {
+                userScore++;
+                document.getElementById('userScore').textContent = userScore;
+            } else if (result === 'ai') {
+                aiScore++;
+                document.getElementById('aiScore').textContent = aiScore;
+            } else {
+                tieScore++;
+                document.getElementById('tieScore').textContent = tieScore;
+            }
+        }
+
+        function resetScore() {
+            userScore = 0;
+            aiScore = 0;
+            tieScore = 0;
+            document.getElementById('userScore').textContent = '0';
+            document.getElementById('aiScore').textContent = '0';
+            document.getElementById('tieScore').textContent = '0';
+        }
+
+        function toggleSettings() {
+            const panel = document.getElementById('settingsPanel');
+            panel.classList.toggle('show');
+        }
+
+        function toggleChangelog() {
+            const content = document.getElementById('changelogContent');
+            const arrow = document.getElementById('changelogArrow');
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                arrow.textContent = '▲';
+            } else {
+                content.style.display = 'none';
+                arrow.textContent = '▼';
+            }
+        }
+
+        function toggleCamera() {
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            cameraHidden = !cameraHidden;
+            
+            if (cameraHidden) {
+                video.style.display = 'none';
+                canvas.style.display = 'none';
+            } else {
+                video.style.display = 'block';
+                canvas.style.display = 'block';
+            }
+        }
+
+        // ============== 初始化模块 ==============
+        async function init() {
+            try {
+                hands = new Hands({locateFile: (file) => {
+                    return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+                }});
+
+                hands.setOptions({
+                    maxNumHands: 1,
+                    modelComplexity: 1,
+                    minDetectionConfidence: 0.7,
+                    minTrackingConfidence: 0.5
+                });
+
+                hands.onResults(onResults);
+
+                const videoElement = document.getElementById('video');
+                const canvasElement = document.getElementById('canvas');
+                const canvasCtx = canvasElement.getContext('2d');
+
+                camera = new Camera(videoElement, {
+                    onFrame: async () => {
+                        await hands.send({image: videoElement});
+                    },
+                    width: 1280,
+                    height: 720
+                });
+
+                camera.start();
+
+                document.getElementById('statusMessage').textContent = '请将手放入摄像头，做出石头、剪刀或布的手势！';
+            } catch (error) {
+                document.getElementById('statusMessage').textContent = '初始化失败，请刷新页面重试';
+            }
+        }
+
+        function onResults(results) {
+            const canvasElement = document.getElementById('canvas');
+            const canvasCtx = canvasElement.getContext('2d');
+            const videoElement = document.getElementById('video');
+
+            canvasElement.width = videoElement.videoWidth;
+            canvasElement.height = videoElement.videoHeight;
+            
+            canvasCtx.save();
+            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            
+            canvasCtx.drawImage(
+                results.image, 0, 0, canvasElement.width, canvasElement.height);
+
+            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                for (const landmarks of results.multiHandLandmarks) {
+                    drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS,
+                        {color: '#00FF00', lineWidth: 2});
+                    drawLandmarks(canvasCtx, landmarks, {color: '#FF0000', lineWidth: 1, radius: 2});
+                }
+
+                const gesture = detectGesture(results.multiHandLandmarks[0]);
+                
+                if (gesture) {
+                    if (gesture === lastGesture) {
+                        gestureStability++;
+                        if (gestureStability >= 3) {
+                            if (!isPlaying) {
+                                playGame(gesture);
+                            }
+                        }
+                    } else {
+                        lastGesture = gesture;
+                        gestureStability = 0;
+                    }
+                } else {
+                    lastGesture = null;
+                    gestureStability = 0;
+                }
+            } else {
+                lastGesture = null;
+                gestureStability = 0;
+            }
+
+            canvasCtx.restore();
+        }
+
+        document.getElementById('winRateSlider').addEventListener('input', (e) => {
+            document.getElementById('winRateValue').textContent = e.target.value + '%';
+        });
+
+        window.onload = init;
+    </script>
+</body>
+</html>
