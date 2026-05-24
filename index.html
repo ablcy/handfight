@@ -339,6 +339,61 @@
                 font-size: 3rem;
             }
         }
+
+        .footer-info {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e2e8f0;
+            text-align: center;
+        }
+
+        .changelog-section {
+            margin-bottom: 20px;
+        }
+
+        .changelog-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 12px;
+        }
+
+        .changelog-content {
+            text-align: left;
+            max-height: 150px;
+            overflow-y: auto;
+            background: #f7fafc;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .changelog-item {
+            font-size: 0.85rem;
+            color: #4a5568;
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .changelog-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .changelog-item strong {
+            color: #667eea;
+        }
+
+        .version-info {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .copyright {
+            font-size: 0.85rem;
+            color: #718096;
+        }
     </style>
 </head>
 <body>
@@ -394,6 +449,19 @@
                 • 其他数值 = 随机对战
             </div>
             <button class="reset-btn" onclick="resetScore()">🔄 重置分数</button>
+        </div>
+
+        <div class="footer-info">
+            <div class="changelog-section">
+                <div class="changelog-title">📋 更新日志</div>
+                <div class="changelog-content">
+                    <div class="changelog-item"><strong>2026-05-23 13:01</strong> - v0.0.1 移除AI手势轮换动画，让AI直接显示手势，大幅提升响应速度</div>
+                    <div class="changelog-item"><strong>2026-05-24 21:14</strong> - v1.1.0 新增双画面对战布局，AI手势动画效果</div>
+                    <div class="changelog-item"><strong>2026-05-24 13:00</strong> - v1.0.0 首次发布，基本手势识别对战功能</div>
+                </div>
+            </div>
+            <div class="version-info">V0.0.1</div>
+            <div class="copyright">© 2026 Li Chengyan. All Rights Reserved.</div>
         </div>
     </div>
 
@@ -534,60 +602,28 @@
             statusMessage.textContent = message;
         }
 
-        // ============== AI手势动画模块 ==============
-        let aiAnimationInterval = null;
-        let aiAnimationActive = false;
-
-        function startAIAnimation() {
-            aiAnimationActive = true;
-            const aiDisplay = document.getElementById('aiGestureDisplay');
-            const gestures = ['✊', '✌️', '🖐️'];
-            let index = 0;
-            
-            aiAnimationInterval = setInterval(() => {
-                aiDisplay.textContent = gestures[index];
-                index = (index + 1) % 3;
-            }, 80);
-        }
-
-        function stopAIAnimation(finalGesture) {
-            clearInterval(aiAnimationInterval);
-            aiAnimationActive = false;
-            const aiDisplay = document.getElementById('aiGestureDisplay');
-            aiDisplay.textContent = GESTURE_EMOJI[finalGesture];
-            aiDisplay.classList.add('animate');
-            setTimeout(() => aiDisplay.classList.remove('animate'), 300);
-        }
-
-        function resetAIDisplay() {
-            const aiDisplay = document.getElementById('aiGestureDisplay');
-            aiDisplay.textContent = '❓';
-        }
-
         // ============== 游戏逻辑模块 ==============
         function playGame(userGesture) {
             if (isPlaying) return;
             isPlaying = true;
             
-            // 开始AI动画
-            startAIAnimation();
+            const aiGesture = generateAIGesture(userGesture);
+            currentAIGesture = aiGesture;
             
-            // 延迟显示最终手势
+            const aiDisplay = document.getElementById('aiGestureDisplay');
+            aiDisplay.textContent = GESTURE_EMOJI[aiGesture];
+            aiDisplay.classList.add('animate');
+            setTimeout(() => aiDisplay.classList.remove('animate'), 200);
+            
+            const result = determineWinner(userGesture, aiGesture);
+            updateScore(result);
+            showResult(userGesture, aiGesture, result);
+            
             setTimeout(() => {
-                const aiGesture = generateAIGesture(userGesture);
-                currentAIGesture = aiGesture;
-                stopAIAnimation(aiGesture);
-                
-                const result = determineWinner(userGesture, aiGesture);
-                updateScore(result);
-                showResult(userGesture, aiGesture, result);
-                
-                setTimeout(() => {
-                    isPlaying = false;
-                    resetGestureState();
-                    resetAIDisplay();
-                }, 1500);
-            }, 250);
+                isPlaying = false;
+                resetGestureState();
+                resetAIDisplay();
+            }, 1200);
         }
 
         function generateAIGesture(userGesture) {
@@ -652,6 +688,11 @@
             document.getElementById('userScore').textContent = '0';
             document.getElementById('aiScore').textContent = '0';
             document.getElementById('tieScore').textContent = '0';
+        }
+
+        function resetAIDisplay() {
+            const aiDisplay = document.getElementById('aiGestureDisplay');
+            aiDisplay.textContent = '❓';
         }
 
         // ============== UI交互模块 ==============
