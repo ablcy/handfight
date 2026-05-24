@@ -159,17 +159,21 @@
         }
 
         .result-display {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.9);
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0.8));
             color: white;
-            padding: 20px 25px;
-            border-radius: 16px;
+            padding: 15px 20px;
             text-align: center;
-            z-index: 1000;
-            animation: fadeIn 0.3s ease;
-            min-width: 200px;
+            z-index: 100;
+            display: none;
+            border-radius: 0 0 16px 16px;
+        }
+
+        .result-display.show {
+            display: block;
         }
 
         .result-display.show {
@@ -420,6 +424,23 @@
             <div class="ai-section">
                 <div class="player-label">🤖 AI</div>
                 <div id="aiGestureDisplay" class="ai-gesture-display">❓</div>
+                <div id="resultDisplay" class="result-display">
+                    <div class="gestures-show">
+                        <div class="gesture-item">
+                            <span class="gesture-emoji" id="userGesture">✊</span>
+                            <span class="gesture-label">你</span>
+                        </div>
+                        <div class="gesture-item">
+                            <span class="gesture-emoji">⚔️</span>
+                            <span class="gesture-label">VS</span>
+                        </div>
+                        <div class="gesture-item">
+                            <span class="gesture-emoji" id="aiGesture">✊</span>
+                            <span class="gesture-label">AI</span>
+                        </div>
+                    </div>
+                    <div id="resultText" class="result-text">平局！</div>
+                </div>
             </div>
         </div>
 
@@ -463,31 +484,13 @@
             <div class="changelog-section">
                 <div class="changelog-toggle" onclick="toggleChangelog()">📋 更新日志 <span id="changelogArrow">▼</span></div>
                 <div class="changelog-content" id="changelogContent" style="display: none;">
+                    <div class="changelog-item"><strong>2026-05-24 21:35</strong> - V0.0.3 裁判覆盖AI区域下半部分，显示2秒后消失</div>
                     <div class="changelog-item"><strong>2026-05-24 21:22</strong> - V0.0.2 裁判固定右下角，更新日志折叠功能</div>
-                    <div class="changelog-item"><strong>2026-05-24 21:01</strong> - V0.0.1 移除AI手势轮换动画，大幅提升响应速度</div>
                 </div>
             </div>
-            <div class="version-info">V0.0.2</div>
+            <div class="version-info">V0.0.3</div>
             <div class="copyright">© 2026 Li Chengyan. All Rights Reserved.</div>
         </div>
-    </div>
-
-    <div id="resultDisplay" class="result-display">
-        <div class="gestures-show">
-            <div class="gesture-item">
-                <span class="gesture-emoji" id="userGesture">✊</span>
-                <span class="gesture-label">你</span>
-            </div>
-            <div class="gesture-item">
-                <span class="gesture-emoji">⚔️</span>
-                <span class="gesture-label">VS</span>
-            </div>
-            <div class="gesture-item">
-                <span class="gesture-emoji" id="aiGesture">✊</span>
-                <span class="gesture-label">AI</span>
-            </div>
-        </div>
-        <div id="resultText" class="result-text">平局！</div>
     </div>
 
     <script>
@@ -719,6 +722,12 @@
             } else {
                 resultText.textContent = '🤝 平局！';
             }
+            
+            resultDisplay.classList.add('show');
+            
+            setTimeout(() => {
+                resultDisplay.classList.remove('show');
+            }, 2000);
         }
 
         function toggleSettings() {
