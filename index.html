@@ -41,8 +41,7 @@
             font-weight: 700;
         }
 
-        .video-container {
-            position: relative;
+        .battle-container {
             width: 100%;
             max-width: 480px;
             margin: 0 auto 20px;
@@ -50,6 +49,30 @@
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
             background: #000;
+        }
+
+        .player-section {
+            width: 100%;
+            position: relative;
+            background: #000;
+        }
+
+        .player-label {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            z-index: 10;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
         }
 
         video, canvas {
@@ -61,6 +84,45 @@
             position: absolute;
             top: 0;
             left: 0;
+        }
+
+        .ai-section {
+            width: 100%;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 180px;
+            border-top: 3px solid #667eea;
+            position: relative;
+        }
+
+        .ai-gesture-display {
+            font-size: 6rem;
+            transition: transform 0.3s ease;
+        }
+
+        .ai-gesture-display.animate {
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-10deg); }
+            75% { transform: rotate(10deg); }
+        }
+
+        .vs-divider {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-weight: bold;
+            z-index: 20;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
 
         .status-message {
@@ -283,9 +345,19 @@
     <div class="container">
         <h1>✊✌️🖐️ 手势对战</h1>
         
-        <div class="video-container">
-            <video id="video" autoplay playsinline></video>
-            <canvas id="canvas"></canvas>
+        <div class="battle-container">
+            <div class="player-section">
+                <div class="player-label">👤 你</div>
+                <div class="video-container">
+                    <video id="video" autoplay playsinline></video>
+                    <canvas id="canvas"></canvas>
+                </div>
+            </div>
+            <div class="vs-divider">⚔️ VS</div>
+            <div class="ai-section">
+                <div class="player-label">🤖 AI</div>
+                <div id="aiGestureDisplay" class="ai-gesture-display">❓</div>
+            </div>
         </div>
 
         <div id="statusMessage" class="status-message">正在加载手势识别...</div>
@@ -353,6 +425,7 @@
         let lastGesture = null;
         let gestureStableCount = 0;
         const STABLE_THRESHOLD = 8;
+        let currentAIGesture = null;
 
         // 手势映射表
         const GESTURES = {
@@ -461,20 +534,60 @@
             statusMessage.textContent = message;
         }
 
+        // ============== AI手势动画模块 ==============
+        let aiAnimationInterval = null;
+        let aiAnimationActive = false;
+
+        function startAIAnimation() {
+            aiAnimationActive = true;
+            const aiDisplay = document.getElementById('aiGestureDisplay');
+            const gestures = ['✊', '✌️', '🖐️'];
+            let index = 0;
+            
+            aiAnimationInterval = setInterval(() => {
+                aiDisplay.textContent = gestures[index];
+                index = (index + 1) % 3;
+            }, 150);
+        }
+
+        function stopAIAnimation(finalGesture) {
+            clearInterval(aiAnimationInterval);
+            aiAnimationActive = false;
+            const aiDisplay = document.getElementById('aiGestureDisplay');
+            aiDisplay.textContent = GESTURE_EMOJI[finalGesture];
+            aiDisplay.classList.add('animate');
+            setTimeout(() => aiDisplay.classList.remove('animate'), 500);
+        }
+
+        function resetAIDisplay() {
+            const aiDisplay = document.getElementById('aiGestureDisplay');
+            aiDisplay.textContent = '❓';
+        }
+
         // ============== 游戏逻辑模块 ==============
         function playGame(userGesture) {
+            if (isPlaying) return;
             isPlaying = true;
             
-            const aiGesture = generateAIGesture(userGesture);
-            const result = determineWinner(userGesture, aiGesture);
+            // 开始AI动画
+            startAIAnimation();
             
-            updateScore(result);
-            showResult(userGesture, aiGesture, result);
-            
+            // 延迟显示最终手势
             setTimeout(() => {
-                isPlaying = false;
-                resetGestureState();
-            }, 2000);
+                const aiGesture = generateAIGesture(userGesture);
+                currentAIGesture = aiGesture;
+                stopAIAnimation(aiGesture);
+                
+                const result = determineWinner(userGesture, aiGesture);
+                updateScore(result);
+                showResult(userGesture, aiGesture, result);
+                
+                setTimeout(() => {
+                    isPlaying = false;
+                    resetGestureState();
+                    resetAIDisplay();
+                }, 2000);
+            }, 600);
         }
 
         function generateAIGesture(userGesture) {
