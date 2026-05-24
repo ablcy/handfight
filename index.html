@@ -160,17 +160,16 @@
 
         .result-display {
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            bottom: 20px;
+            right: 20px;
             background: rgba(0, 0, 0, 0.9);
             color: white;
-            padding: 40px;
-            border-radius: 20px;
+            padding: 20px 25px;
+            border-radius: 16px;
             text-align: center;
             z-index: 1000;
-            display: none;
             animation: fadeIn 0.3s ease;
+            min-width: 200px;
         }
 
         .result-display.show {
@@ -351,11 +350,20 @@
             margin-bottom: 20px;
         }
 
-        .changelog-title {
+        .changelog-toggle {
             font-size: 1rem;
             font-weight: 600;
             color: #2d3748;
             margin-bottom: 12px;
+            cursor: pointer;
+            padding: 10px;
+            background: #e2e8f0;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+
+        .changelog-toggle:hover {
+            background: #cbd5e0;
         }
 
         .changelog-content {
@@ -453,14 +461,13 @@
 
         <div class="footer-info">
             <div class="changelog-section">
-                <div class="changelog-title">📋 更新日志</div>
-                <div class="changelog-content">
-                    <div class="changelog-item"><strong>2026-05-23 13:01</strong> - v0.0.1 移除AI手势轮换动画，让AI直接显示手势，大幅提升响应速度</div>
-                    <div class="changelog-item"><strong>2026-05-24 21:14</strong> - v1.1.0 新增双画面对战布局，AI手势动画效果</div>
-                    <div class="changelog-item"><strong>2026-05-24 13:00</strong> - v1.0.0 首次发布，基本手势识别对战功能</div>
+                <div class="changelog-toggle" onclick="toggleChangelog()">📋 更新日志 <span id="changelogArrow">▼</span></div>
+                <div class="changelog-content" id="changelogContent" style="display: none;">
+                    <div class="changelog-item"><strong>2026-05-24 21:22</strong> - V0.0.2 裁判固定右下角，更新日志折叠功能</div>
+                    <div class="changelog-item"><strong>2026-05-24 21:01</strong> - V0.0.1 移除AI手势轮换动画，大幅提升响应速度</div>
                 </div>
             </div>
-            <div class="version-info">V0.0.1</div>
+            <div class="version-info">V0.0.2</div>
             <div class="copyright">© 2026 Li Chengyan. All Rights Reserved.</div>
         </div>
     </div>
@@ -712,17 +719,23 @@
             } else {
                 resultText.textContent = '🤝 平局！';
             }
-            
-            resultDisplay.classList.add('show');
-            
-            setTimeout(() => {
-                resultDisplay.classList.remove('show');
-            }, 1500);
         }
 
         function toggleSettings() {
             const panel = document.getElementById('settingsPanel');
             panel.classList.toggle('show');
+        }
+
+        function toggleChangelog() {
+            const content = document.getElementById('changelogContent');
+            const arrow = document.getElementById('changelogArrow');
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                arrow.textContent = '▲';
+            } else {
+                content.style.display = 'none';
+                arrow.textContent = '▼';
+            }
         }
 
         // ============== 初始化模块 ==============
