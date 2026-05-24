@@ -582,11 +582,11 @@
             <div class="changelog-section">
                 <div class="changelog-toggle" onclick="toggleChangelog()">📋 更新日志 <span id="changelogArrow">▼</span></div>
                 <div class="changelog-content" id="changelogContent" style="display: none;">
+                    <div class="changelog-item"><strong>2026-05-24 22:30</strong> - V0.0.8 大幅提升AI反应速度，加快游戏节奏</div>
                     <div class="changelog-item"><strong>2026-05-24 22:20</strong> - V0.0.7 修复视频镜像问题，手势方向与实际一致</div>
-                    <div class="changelog-item"><strong>2026-05-24 22:10</strong> - V0.0.6 修复视频拉伸问题，优化摄像头比例</div>
                 </div>
             </div>
-            <div class="version-info">V0.0.7</div>
+            <div class="version-info">V0.0.8</div>
             <div class="copyright">© 2026 Li Chengyan. All Rights Reserved.</div>
         </div>
     </div>
@@ -702,7 +702,7 @@
             const aiDisplay = document.getElementById('aiGestureDisplay');
             aiDisplay.textContent = GESTURE_EMOJI[aiGesture];
             aiDisplay.classList.add('animate');
-            setTimeout(() => aiDisplay.classList.remove('animate'), 500);
+            setTimeout(() => aiDisplay.classList.remove('animate'), 200);
             
             const result = determineWinner(userGesture, aiGesture);
             updateScore(result);
@@ -712,7 +712,7 @@
                 isPlaying = false;
                 resetGestureState();
                 resetAIDisplay();
-            }, 2000);
+            }, 1200);
         }
 
         function resetGestureState() {
@@ -751,7 +751,7 @@
                 resultDisplay.classList.remove('show');
                 judgeTitle.style.display = 'block';
                 judgeTitle.textContent = '👨‍⚖️ 裁判等待中...';
-            }, 2000);
+            }, 1000);
         }
 
         function updateScore(result) {
@@ -869,7 +869,7 @@
                 if (gesture) {
                     if (gesture === lastGesture) {
                         gestureStability++;
-                        if (gestureStability >= 8) {
+                        if (gestureStability >= 3) {
                             if (!isPlaying) {
                                 playGame(gesture);
                             }
