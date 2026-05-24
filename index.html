@@ -29,7 +29,7 @@
             border-radius: 24px;
             padding: 30px;
             width: 100%;
-            max-width: 600px;
+            max-width: 700px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         }
 
@@ -43,7 +43,7 @@
 
         .battle-container {
             width: 100%;
-            max-width: 480px;
+            max-width: 600px;
             margin: 0 auto 20px;
             border-radius: 16px;
             overflow: hidden;
@@ -51,9 +51,26 @@
             background: #000;
         }
 
-        .player-section {
-            width: 100%;
+        .top-row {
+            display: flex;
+            height: 200px;
+        }
+
+        .gesture-area {
+            flex: 1;
             position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 180px;
+        }
+
+        .ai-area {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-right: 2px solid #667eea;
+        }
+
+        .user-area {
             background: #000;
         }
 
@@ -73,11 +90,14 @@
         .video-container {
             position: relative;
             width: 100%;
+            height: 100%;
         }
 
         video, canvas {
             width: 100%;
+            height: 100%;
             display: block;
+            object-fit: cover;
         }
 
         canvas {
@@ -86,23 +106,11 @@
             left: 0;
         }
 
-        .ai-section {
-            width: 100%;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 180px;
-            border-top: 3px solid #667eea;
-            position: relative;
+        .gesture-display {
+            font-size: 5rem;
         }
 
-        .ai-gesture-display {
-            font-size: 6rem;
-            transition: transform 0.3s ease;
-        }
-
-        .ai-gesture-display.animate {
+        .gesture-display.animate {
             animation: shake 0.5s ease;
         }
 
@@ -114,8 +122,9 @@
 
         .vs-divider {
             position: absolute;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
+            transform: translate(-50%, -50%);
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 8px 20px;
@@ -123,6 +132,63 @@
             font-weight: bold;
             z-index: 20;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .judge-area {
+            background: linear-gradient(135deg, #1a2a6c 0%, #2d3748 100%);
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-top: 3px solid #667eea;
+        }
+
+        .result-display {
+            width: 100%;
+            padding: 20px;
+            text-align: center;
+            color: white;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .result-display.show {
+            opacity: 1;
+        }
+
+        .result-text {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .gestures-show {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 20px;
+        }
+
+        .gesture-item {
+            text-align: center;
+        }
+
+        .gesture-emoji {
+            font-size: 4rem;
+            display: block;
+        }
+
+        .gesture-label {
+            font-size: 1rem;
+            margin-top: 10px;
+            opacity: 0.8;
+        }
+
+        .judge-title {
+            font-size: 1.5rem;
+            color: white;
+            opacity: 0.7;
         }
 
         .status-message {
@@ -156,61 +222,6 @@
         .score-label {
             font-size: 0.9rem;
             opacity: 0.9;
-        }
-
-        .result-display {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0.8));
-            color: white;
-            padding: 15px 20px;
-            text-align: center;
-            z-index: 100;
-            display: none;
-            border-radius: 0 0 16px 16px;
-        }
-
-        .result-display.show {
-            display: block;
-        }
-
-        .result-display.show {
-            display: block;
-        }
-
-        .result-text {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 20px;
-        }
-
-        .gestures-show {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            margin-bottom: 20px;
-        }
-
-        .gesture-item {
-            text-align: center;
-        }
-
-        .gesture-emoji {
-            font-size: 4rem;
-            display: block;
-        }
-
-        .gesture-label {
-            font-size: 1rem;
-            margin-top: 10px;
-            opacity: 0.8;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
-            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
         }
 
         .settings-btn {
@@ -247,7 +258,7 @@
 
         @keyframes slideDown {
             from { opacity: 0; max-height: 0; }
-            to { opacity: 1; max-height: 200px; }
+            to { opacity: 1; max-height: 400px; }
         }
 
         .settings-title {
@@ -258,7 +269,7 @@
         }
 
         .slider-container {
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
 
         .slider-label {
@@ -292,6 +303,65 @@
             color: #718096;
             font-size: 0.85rem;
             line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 15px;
+        }
+
+        .toggle-label {
+            color: #2d3748;
+            font-weight: 500;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #e2e8f0;
+            transition: .4s;
+            border-radius: 26px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #667eea;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
         }
 
         .reset-btn {
@@ -302,7 +372,7 @@
             border-radius: 8px;
             font-size: 0.9rem;
             cursor: pointer;
-            margin-top: 15px;
+            margin-top: 10px;
             width: 100%;
             transition: all 0.3s;
             font-weight: 600;
@@ -340,6 +410,14 @@
 
             .gesture-emoji {
                 font-size: 3rem;
+            }
+
+            .top-row {
+                height: 160px;
+            }
+
+            .judge-area {
+                min-height: 160px;
             }
         }
 
@@ -412,18 +490,24 @@
     <div class="container">
         <h1>✊✌️🖐️ 手势对战</h1>
         
+        <div class="status-message" id="statusMessage">正在初始化...</div>
+
         <div class="battle-container">
-            <div class="player-section">
-                <div class="player-label">👤 你</div>
-                <div class="video-container">
-                    <video id="video" autoplay playsinline></video>
-                    <canvas id="canvas"></canvas>
+            <div class="top-row">
+                <div class="gesture-area ai-area">
+                    <div class="player-label">🤖 AI</div>
+                    <div id="aiGestureDisplay" class="gesture-display">❓</div>
+                </div>
+                <div class="vs-divider">⚔️ VS</div>
+                <div class="gesture-area user-area">
+                    <div class="player-label">👤 你</div>
+                    <div class="video-container">
+                        <video id="video" autoplay playsinline></video>
+                        <canvas id="canvas"></canvas>
+                    </div>
                 </div>
             </div>
-            <div class="vs-divider">⚔️ VS</div>
-            <div class="ai-section">
-                <div class="player-label">🤖 AI</div>
-                <div id="aiGestureDisplay" class="ai-gesture-display">❓</div>
+            <div class="judge-area">
                 <div id="resultDisplay" class="result-display">
                     <div class="gestures-show">
                         <div class="gesture-item">
@@ -441,15 +525,14 @@
                     </div>
                     <div id="resultText" class="result-text">平局！</div>
                 </div>
+                <div class="judge-title" id="judgeTitle">👨‍⚖️ 裁判等待中...</div>
             </div>
         </div>
-
-        <div id="statusMessage" class="status-message">正在加载手势识别...</div>
 
         <div class="score-board">
             <div class="score-item">
                 <span class="score-value" id="userScore">0</span>
-                <span class="score-label">你赢了</span>
+                <span class="score-label">你赢</span>
             </div>
             <div class="score-item">
                 <span class="score-value" id="tieScore">0</span>
@@ -457,26 +540,35 @@
             </div>
             <div class="score-item">
                 <span class="score-value" id="aiScore">0</span>
-                <span class="score-label">AI赢了</span>
+                <span class="score-label">AI赢</span>
             </div>
         </div>
 
-        <button class="settings-btn" onclick="toggleSettings()">⚙️ 胜率设置</button>
+        <button class="settings-btn" onclick="toggleSettings()">⚙️ 设置</button>
 
-        <div id="settingsPanel" class="settings-panel">
-            <div class="settings-title">AI胜率调节</div>
+        <div class="settings-panel" id="settingsPanel">
+            <div class="settings-title">AI 胜率设置</div>
             <div class="slider-container">
                 <div class="slider-label">
-                    <span>AI胜率</span>
-                    <span><input type="number" id="winRateInput" value="50" min="0" max="100" style="width: 60px; padding: 4px; border: 1px solid #e2e8f0; border-radius: 4px; text-align: center;">%</span>
+                    <span>AI 胜率</span>
+                    <span id="winRateValue">50%</span>
                 </div>
                 <input type="range" id="winRateSlider" min="0" max="100" value="50">
             </div>
             <div class="settings-desc">
-                • 0% = 你每局必赢<br>
-                • 100% = 你每局必输<br>
-                • 其他数值 = 随机对战
+                0% = 你每局必赢<br>
+                100% = 你每局必输<br>
+                中间值 = 按概率随机对战
             </div>
+            
+            <div class="toggle-container">
+                <span class="toggle-label">隐藏摄像头</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="hideCameraToggle" onchange="toggleCamera()">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            
             <button class="reset-btn" onclick="resetScore()">🔄 重置分数</button>
         </div>
 
@@ -484,33 +576,25 @@
             <div class="changelog-section">
                 <div class="changelog-toggle" onclick="toggleChangelog()">📋 更新日志 <span id="changelogArrow">▼</span></div>
                 <div class="changelog-content" id="changelogContent" style="display: none;">
+                    <div class="changelog-item"><strong>2026-05-24 21:45</strong> - V0.0.4 重新布局，添加隐藏摄像头选项</div>
                     <div class="changelog-item"><strong>2026-05-24 21:35</strong> - V0.0.3 裁判覆盖AI区域下半部分，显示2秒后消失</div>
-                    <div class="changelog-item"><strong>2026-05-24 21:22</strong> - V0.0.2 裁判固定右下角，更新日志折叠功能</div>
                 </div>
             </div>
-            <div class="version-info">V0.0.3</div>
+            <div class="version-info">V0.0.4</div>
             <div class="copyright">© 2026 Li Chengyan. All Rights Reserved.</div>
         </div>
     </div>
 
     <script>
         // ============== 全局变量 ==============
-        let userScore = 0;
-        let aiScore = 0;
-        let tieScore = 0;
-        let winRate = 50;
-        let isPlaying = false;
+        let hands, camera;
+        let userScore = 0, aiScore = 0, tieScore = 0;
+        let currentGesture = null;
         let lastGesture = null;
-        let gestureStableCount = 0;
-        const STABLE_THRESHOLD = 8;
+        let gestureStability = 0;
+        let isPlaying = false;
         let currentAIGesture = null;
-
-        // 手势映射表
-        const GESTURES = {
-            ROCK: 'rock',
-            SCISSORS: 'scissors',
-            PAPER: 'paper'
-        };
+        let cameraHidden = false;
 
         const GESTURE_EMOJI = {
             rock: '✊',
@@ -518,98 +602,87 @@
             paper: '🖐️'
         };
 
-        // ============== MediaPipe 手势识别模块 ==============
-        const videoElement = document.getElementById('video');
-        const canvasElement = document.getElementById('canvas');
-        const canvasCtx = canvasElement.getContext('2d');
-        const statusMessage = document.getElementById('statusMessage');
-
-        function onResults(results) {
-            canvasCtx.save();
-            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-            
-            canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
-
-            if (results.multiHandLandmarks) {
-                for (const landmarks of results.multiHandLandmarks) {
-                    drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, { color: '#00FF00', lineWidth: 2 });
-                    drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 1, radius: 3 });
-                }
-
-                if (results.multiHandLandmarks.length > 0) {
-                    const gesture = detectGesture(results.multiHandLandmarks[0]);
-                    if (gesture) {
-                        handleGesture(gesture);
-                    } else {
-                        updateStatus('请做出有效手势（石头/剪刀/布）');
-                        resetGestureState();
-                    }
-                } else {
-                    updateStatus('请将手放入摄像头');
-                    resetGestureState();
-                }
-            } else {
-                updateStatus('请将手放入摄像头');
-                resetGestureState();
-            }
-
-            canvasCtx.restore();
-        }
-
+        // ============== 手势识别模块 ==============
         function detectGesture(landmarks) {
             const thumbTip = landmarks[4];
             const indexTip = landmarks[8];
-            const indexPIP = landmarks[6];
+            const indexMcp = landmarks[5];
             const middleTip = landmarks[12];
-            const middlePIP = landmarks[10];
+            const middleMcp = landmarks[9];
             const ringTip = landmarks[16];
-            const ringPIP = landmarks[14];
+            const ringMcp = landmarks[13];
             const pinkyTip = landmarks[20];
-            const pinkyPIP = landmarks[18];
-            const wrist = landmarks[0];
+            const pinkyMcp = landmarks[17];
 
-            const indexExtended = indexTip.y < indexPIP.y;
-            const middleExtended = middleTip.y < middlePIP.y;
-            const ringExtended = ringTip.y < ringPIP.y;
-            const pinkyExtended = pinkyTip.y < pinkyPIP.y;
+            const indexExtended = indexTip.y < indexMcp.y;
+            const middleExtended = middleTip.y < middleMcp.y;
+            const ringExtended = ringTip.y < ringMcp.y;
+            const pinkyExtended = pinkyTip.y < pinkyMcp.y;
+
+            const thumbExtended = thumbTip.x < thumbTip.y;
 
             if (!indexExtended && !middleExtended && !ringExtended && !pinkyExtended) {
-                return GESTURES.ROCK;
+                return 'rock';
             }
 
             if (indexExtended && middleExtended && !ringExtended && !pinkyExtended) {
-                return GESTURES.SCISSORS;
+                return 'scissors';
             }
 
             if (indexExtended && middleExtended && ringExtended && pinkyExtended) {
-                return GESTURES.PAPER;
+                return 'paper';
             }
 
             return null;
         }
 
-        function handleGesture(gesture) {
-            if (gesture === lastGesture) {
-                gestureStableCount++;
-                if (gestureStableCount >= STABLE_THRESHOLD && !isPlaying) {
-                    playGame(gesture);
-                }
-            } else {
-                lastGesture = gesture;
-                gestureStableCount = 1;
+        // ============== 胜率逻辑模块 ==============
+        function generateAIGesture(userGesture) {
+            const winRate = parseInt(document.getElementById('winRateSlider').value);
+            const gestures = ['rock', 'scissors', 'paper'];
+            
+            if (winRate === 0) {
+                if (userGesture === 'rock') return 'scissors';
+                if (userGesture === 'scissors') return 'paper';
+                return 'rock';
             }
             
-            const gestureNames = { rock: '石头', scissors: '剪刀', paper: '布' };
-            updateStatus(`识别到: ${gestureNames[gesture]}`);
+            if (winRate === 100) {
+                if (userGesture === 'rock') return 'paper';
+                if (userGesture === 'scissors') return 'rock';
+                return 'scissors';
+            }
+            
+            const userWinChance = (100 - winRate) / 100;
+            const tieChance = 0.1;
+            const aiWinChance = 1 - userWinChance - tieChance;
+            
+            const random = Math.random();
+            
+            if (random < userWinChance) {
+                if (userGesture === 'rock') return 'scissors';
+                if (userGesture === 'scissors') return 'paper';
+                return 'rock';
+            } else if (random < userWinChance + tieChance) {
+                return userGesture;
+            } else {
+                if (userGesture === 'rock') return 'paper';
+                if (userGesture === 'scissors') return 'rock';
+                return 'scissors';
+            }
         }
 
-        function resetGestureState() {
-            lastGesture = null;
-            gestureStableCount = 0;
-        }
-
-        function updateStatus(message) {
-            statusMessage.textContent = message;
+        // ============== 胜负判定模块 ==============
+        function determineWinner(user, ai) {
+            if (user === ai) return 'tie';
+            if (
+                (user === 'rock' && ai === 'scissors') ||
+                (user === 'scissors' && ai === 'paper') ||
+                (user === 'paper' && ai === 'rock')
+            ) {
+                return 'user';
+            }
+            return 'ai';
         }
 
         // ============== 游戏逻辑模块 ==============
@@ -623,7 +696,7 @@
             const aiDisplay = document.getElementById('aiGestureDisplay');
             aiDisplay.textContent = GESTURE_EMOJI[aiGesture];
             aiDisplay.classList.add('animate');
-            setTimeout(() => aiDisplay.classList.remove('animate'), 200);
+            setTimeout(() => aiDisplay.classList.remove('animate'), 500);
             
             const result = determineWinner(userGesture, aiGesture);
             updateScore(result);
@@ -633,51 +706,48 @@
                 isPlaying = false;
                 resetGestureState();
                 resetAIDisplay();
-            }, 1200);
+            }, 2000);
         }
 
-        function generateAIGesture(userGesture) {
-            const random = Math.random() * 100;
+        function resetGestureState() {
+            lastGesture = null;
+            gestureStability = 0;
+        }
+
+        function resetAIDisplay() {
+            const aiDisplay = document.getElementById('aiGestureDisplay');
+            aiDisplay.textContent = '❓';
+        }
+
+        // ============== UI交互模块 ==============
+        function showResult(userGesture, aiGesture, result) {
+            const resultDisplay = document.getElementById('resultDisplay');
+            const resultText = document.getElementById('resultText');
+            const userGestureEl = document.getElementById('userGesture');
+            const aiGestureEl = document.getElementById('aiGesture');
+            const judgeTitle = document.getElementById('judgeTitle');
             
-            if (winRate === 0) {
-                if (userGesture === GESTURES.ROCK) return GESTURES.SCISSORS;
-                if (userGesture === GESTURES.SCISSORS) return GESTURES.PAPER;
-                if (userGesture === GESTURES.PAPER) return GESTURES.ROCK;
-            }
+            userGestureEl.textContent = GESTURE_EMOJI[userGesture];
+            aiGestureEl.textContent = GESTURE_EMOJI[aiGesture];
             
-            if (winRate === 100) {
-                if (userGesture === GESTURES.ROCK) return GESTURES.PAPER;
-                if (userGesture === GESTURES.SCISSORS) return GESTURES.ROCK;
-                if (userGesture === GESTURES.PAPER) return GESTURES.SCISSORS;
-            }
-            
-            if (random < winRate) {
-                if (userGesture === GESTURES.ROCK) return GESTURES.PAPER;
-                if (userGesture === GESTURES.SCISSORS) return GESTURES.ROCK;
-                if (userGesture === GESTURES.PAPER) return GESTURES.SCISSORS;
+            if (result === 'user') {
+                resultText.textContent = '🎉 你赢了！';
+            } else if (result === 'ai') {
+                resultText.textContent = '😢 你输了！';
             } else {
-                if (userGesture === GESTURES.ROCK) return GESTURES.SCISSORS;
-                if (userGesture === GESTURES.SCISSORS) return GESTURES.PAPER;
-                if (userGesture === GESTURES.PAPER) return GESTURES.ROCK;
+                resultText.textContent = '🤝 平局！';
             }
             
-            const gestures = [GESTURES.ROCK, GESTURES.SCISSORS, GESTURES.PAPER];
-            return gestures[Math.floor(Math.random() * 3)];
+            judgeTitle.style.display = 'none';
+            resultDisplay.classList.add('show');
+            
+            setTimeout(() => {
+                resultDisplay.classList.remove('show');
+                judgeTitle.style.display = 'block';
+                judgeTitle.textContent = '👨‍⚖️ 裁判等待中...';
+            }, 2000);
         }
 
-        function determineWinner(user, ai) {
-            if (user === ai) return 'tie';
-            
-            if ((user === GESTURES.ROCK && ai === GESTURES.SCISSORS) ||
-                (user === GESTURES.SCISSORS && ai === GESTURES.PAPER) ||
-                (user === GESTURES.PAPER && ai === GESTURES.ROCK)) {
-                return 'user';
-            }
-            
-            return 'ai';
-        }
-
-        // ============== 计分模块 ==============
         function updateScore(result) {
             if (result === 'user') {
                 userScore++;
@@ -700,36 +770,6 @@
             document.getElementById('tieScore').textContent = '0';
         }
 
-        function resetAIDisplay() {
-            const aiDisplay = document.getElementById('aiGestureDisplay');
-            aiDisplay.textContent = '❓';
-        }
-
-        // ============== UI交互模块 ==============
-        function showResult(userGesture, aiGesture, result) {
-            const resultDisplay = document.getElementById('resultDisplay');
-            const resultText = document.getElementById('resultText');
-            const userGestureEl = document.getElementById('userGesture');
-            const aiGestureEl = document.getElementById('aiGesture');
-            
-            userGestureEl.textContent = GESTURE_EMOJI[userGesture];
-            aiGestureEl.textContent = GESTURE_EMOJI[aiGesture];
-            
-            if (result === 'user') {
-                resultText.textContent = '🎉 你赢了！';
-            } else if (result === 'ai') {
-                resultText.textContent = '😢 你输了！';
-            } else {
-                resultText.textContent = '🤝 平局！';
-            }
-            
-            resultDisplay.classList.add('show');
-            
-            setTimeout(() => {
-                resultDisplay.classList.remove('show');
-            }, 2000);
-        }
-
         function toggleSettings() {
             const panel = document.getElementById('settingsPanel');
             panel.classList.toggle('show');
@@ -747,14 +787,26 @@
             }
         }
 
+        function toggleCamera() {
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            cameraHidden = !cameraHidden;
+            
+            if (cameraHidden) {
+                video.style.display = 'none';
+                canvas.style.display = 'none';
+            } else {
+                video.style.display = 'block';
+                canvas.style.display = 'block';
+            }
+        }
+
         // ============== 初始化模块 ==============
         async function init() {
             try {
-                const hands = new Hands({
-                    locateFile: (file) => {
-                        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-                    }
-                });
+                hands = new Hands({locateFile: (file) => {
+                    return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}';
+                }});
 
                 hands.setOptions({
                     maxNumHands: 1,
@@ -765,62 +817,75 @@
 
                 hands.onResults(onResults);
 
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: 'user' }
+                const videoElement = document.getElementById('video');
+                const canvasElement = document.getElementById('canvas');
+                const canvasCtx = canvasElement.getContext('2d');
+
+                camera = new Camera(videoElement, {
+                    onFrame: async () => {
+                        await hands.send({image: videoElement});
+                    },
+                    width: 640,
+                    height: 480
                 });
 
-                videoElement.srcObject = stream;
-                videoElement.onloadedmetadata = () => {
-                    canvasElement.width = videoElement.videoWidth;
-                    canvasElement.height = videoElement.videoHeight;
-                    
-                    const camera = new Camera(videoElement, {
-                        onFrame: async () => {
-                            await hands.send({ image: videoElement });
-                        },
-                        width: 640,
-                        height: 480
-                    });
-                    camera.start();
-                    
-                    updateStatus('请做出手势开始游戏！');
-                };
+                camera.start();
+
+                document.getElementById('statusMessage').textContent = '请将手放入摄像头，做出石头、剪刀或布的手势！';
             } catch (error) {
-                console.error('初始化失败:', error);
-                updateStatus('无法访问摄像头，请确保已授予权限');
+                document.getElementById('statusMessage').textContent = '初始化失败，请刷新页面重试';
             }
         }
 
-        // ============== 事件监听 ==============
-        const slider = document.getElementById('winRateSlider');
-        const input = document.getElementById('winRateInput');
+        function onResults(results) {
+            const canvasElement = document.getElementById('canvas');
+            const canvasCtx = canvasElement.getContext('2d');
+            const videoElement = document.getElementById('video');
 
-        slider.addEventListener('input', (e) => {
-            winRate = parseInt(e.target.value);
-            input.value = winRate;
+            canvasCtx.save();
+            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            
+            canvasCtx.drawImage(
+                results.image, 0, 0, canvasElement.width, canvasElement.height);
+
+            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                for (const landmarks of results.multiHandLandmarks) {
+                    drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS,
+                        {color: '#00FF00', lineWidth: 2});
+                    drawLandmarks(canvasCtx, landmarks, {color: '#FF0000', lineWidth: 1, radius: 2});
+                }
+
+                const gesture = detectGesture(results.multiHandLandmarks[0]);
+                
+                if (gesture) {
+                    if (gesture === lastGesture) {
+                        gestureStability++;
+                        if (gestureStability >= 8) {
+                            if (!isPlaying) {
+                                playGame(gesture);
+                            }
+                        }
+                    } else {
+                        lastGesture = gesture;
+                        gestureStability = 0;
+                    }
+                } else {
+                    lastGesture = null;
+                    gestureStability = 0;
+                }
+            } else {
+                lastGesture = null;
+                gestureStability = 0;
+            }
+
+            canvasCtx.restore();
+        }
+
+        document.getElementById('winRateSlider').addEventListener('input', (e) => {
+            document.getElementById('winRateValue').textContent = e.target.value + '%';
         });
 
-        input.addEventListener('input', (e) => {
-            let value = parseInt(e.target.value);
-            if (isNaN(value)) value = 50;
-            if (value < 0) value = 0;
-            if (value > 100) value = 100;
-            winRate = value;
-            slider.value = winRate;
-            e.target.value = value;
-        });
-
-        input.addEventListener('blur', (e) => {
-            let value = parseInt(e.target.value);
-            if (isNaN(value)) value = 50;
-            if (value < 0) value = 0;
-            if (value > 100) value = 100;
-            winRate = value;
-            slider.value = winRate;
-            e.target.value = value;
-        });
-
-        window.addEventListener('load', init);
+        window.onload = init;
     </script>
 </body>
 </html>
