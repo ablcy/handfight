@@ -43,7 +43,8 @@
 
         .battle-container {
             width: 100%;
-            max-width: 600px;
+            max-width: 480px;
+            aspect-ratio: 1;
             margin: 0 auto 20px;
             border-radius: 16px;
             overflow: hidden;
@@ -53,7 +54,7 @@
 
         .top-row {
             display: flex;
-            height: 200px;
+            height: 50%;
         }
 
         .gesture-area {
@@ -62,7 +63,6 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 180px;
         }
 
         .ai-area {
@@ -107,7 +107,7 @@
         }
 
         .gesture-display {
-            font-size: 5rem;
+            font-size: 4rem;
         }
 
         .gesture-display.animate {
@@ -511,16 +511,16 @@
                 <div id="resultDisplay" class="result-display">
                     <div class="gestures-show">
                         <div class="gesture-item">
-                            <span class="gesture-emoji" id="userGesture">✊</span>
-                            <span class="gesture-label">你</span>
+                            <span class="gesture-emoji" id="aiGesture">✊</span>
+                            <span class="gesture-label">AI</span>
                         </div>
                         <div class="gesture-item">
                             <span class="gesture-emoji">⚔️</span>
                             <span class="gesture-label">VS</span>
                         </div>
                         <div class="gesture-item">
-                            <span class="gesture-emoji" id="aiGesture">✊</span>
-                            <span class="gesture-label">AI</span>
+                            <span class="gesture-emoji" id="userGesture">✊</span>
+                            <span class="gesture-label">你</span>
                         </div>
                     </div>
                     <div id="resultText" class="result-text">平局！</div>
@@ -576,11 +576,11 @@
             <div class="changelog-section">
                 <div class="changelog-toggle" onclick="toggleChangelog()">📋 更新日志 <span id="changelogArrow">▼</span></div>
                 <div class="changelog-content" id="changelogContent" style="display: none;">
+                    <div class="changelog-item"><strong>2026-05-24 22:00</strong> - V0.0.5 正方形布局，AI手势和我的手势各占1/4，裁判区手势互换</div>
                     <div class="changelog-item"><strong>2026-05-24 21:45</strong> - V0.0.4 重新布局，添加隐藏摄像头选项</div>
-                    <div class="changelog-item"><strong>2026-05-24 21:35</strong> - V0.0.3 裁判覆盖AI区域下半部分，显示2秒后消失</div>
                 </div>
             </div>
-            <div class="version-info">V0.0.4</div>
+            <div class="version-info">V0.0.5</div>
             <div class="copyright">© 2026 Li Chengyan. All Rights Reserved.</div>
         </div>
     </div>
