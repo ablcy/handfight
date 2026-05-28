@@ -611,21 +611,28 @@
         // ============== 手势识别模块 ==============
         function detectGesture(landmarks) {
             const thumbTip = landmarks[4];
+            const thumbIP = landmarks[3];
+            const thumbMCP = landmarks[2];
             const indexTip = landmarks[8];
+            const indexPip = landmarks[6];
             const indexMcp = landmarks[5];
             const middleTip = landmarks[12];
+            const middlePip = landmarks[10];
             const middleMcp = landmarks[9];
             const ringTip = landmarks[16];
+            const ringPip = landmarks[14];
             const ringMcp = landmarks[13];
             const pinkyTip = landmarks[20];
+            const pinkyPip = landmarks[18];
             const pinkyMcp = landmarks[17];
+            const wrist = landmarks[0];
 
-            const indexExtended = indexTip.y < indexMcp.y;
-            const middleExtended = middleTip.y < middleMcp.y;
-            const ringExtended = ringTip.y < ringMcp.y;
-            const pinkyExtended = pinkyTip.y < pinkyMcp.y;
+            const indexExtended = indexTip.y < indexPip.y && indexPip.y < indexMcp.y;
+            const middleExtended = middleTip.y < middlePip.y && middlePip.y < middleMcp.y;
+            const ringExtended = ringTip.y < ringPip.y && ringPip.y < ringMcp.y;
+            const pinkyExtended = pinkyTip.y < pinkyPip.y && pinkyPip.y < pinkyMcp.y;
 
-            const thumbExtended = thumbTip.x < thumbTip.y;
+            const thumbExtended = thumbTip.y < thumbIP.y && thumbIP.y < thumbMCP.y;
 
             if (!indexExtended && !middleExtended && !ringExtended && !pinkyExtended) {
                 return 'rock';
